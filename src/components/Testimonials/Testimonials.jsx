@@ -135,7 +135,7 @@ const Testimonials = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         .custom-dots li button:before {
           color: gray;
           font-size: 12px;

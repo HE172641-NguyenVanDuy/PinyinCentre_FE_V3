@@ -110,15 +110,20 @@ const ClassModal = ({ isOpen, onClose, onSuccess, initialData = null }) => {
 
     const daysMap = { "Sunday": 0, "Monday": 1, "Tuesday": 2, "Wednesday": 3, "Thursday": 4, "Friday": 5, "Saturday": 6 };
 
+    // Tính ngày đầu tiên >= startDate cho mỗi dayOfWeek
+    const getFirstOccurrence = (startStr, targetDayIndex) => {
+      const start = dayjs(startStr);
+      const currentDayIndex = start.day();
+      const daysUntilTarget = (targetDayIndex - currentDayIndex + 7) % 7;
+      return start.add(daysUntilTarget, "day");
+    };
+
     for (let week = 0; week < numberOfWeeks && slotCount < totalSlots; week++) {
       for (const slot of formData.schedules) {
         if (slotCount >= totalSlots) break;
         const dayIndex = daysMap[slot.dayOfWeek];
-        let date = dayjs(formData.startDate).add(week * 7, "day").day(dayIndex);
-        
-        if (date.isBefore(dayjs(formData.startDate), 'day')) {
-            date = date.add(1, 'week');
-        }
+        const firstOccurrence = getFirstOccurrence(formData.startDate, dayIndex);
+        const date = firstOccurrence.add(week * 7, "day");
 
         fullSchedules.push({
           classDate: date.format("YYYY-MM-DD"),

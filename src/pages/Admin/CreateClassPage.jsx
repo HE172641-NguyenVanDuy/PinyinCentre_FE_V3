@@ -124,6 +124,25 @@ const CreateClassPage = () => {
     const schedules = [];
     let slotCount = 0;
 
+    // Chuyển startDate sang string thuần để tránh timezone issues
+    const startDateStr = dayjs(startDate).format("YYYY-MM-DD");
+    const startDateClean = dayjs(startDateStr); // dayjs từ string thuần, không có timezone
+
+    console.log("=== DEBUG generateSchedules ===");
+    console.log("startDate raw:", startDate);
+    console.log("startDate string:", startDateStr);
+    console.log("startDateClean.day():", startDateClean.day());
+    console.log("numberOfWeeks:", numberOfWeeks, "totalSlots:", totalSlots, "slotsPerWeek:", slotsPerWeek);
+    console.log("slots:", JSON.stringify(slots));
+
+    // Tính ngày đầu tiên >= startDate cho mỗi dayOfWeek
+    const getFirstOccurrence = (startClean, targetDayIndex) => {
+      const currentDayIndex = startClean.day(); // 0=Sun,...,6=Sat
+      let daysUntilTarget = (targetDayIndex - currentDayIndex + 7) % 7;
+      // Nếu startDate đúng ngày target, daysUntilTarget = 0 (giữ nguyên ngày đó)
+      return startClean.add(daysUntilTarget, "day");
+    };
+
     for (let week = 0; week < numberOfWeeks && slotCount < totalSlots; week++) {
       for (const slot of slots) {
         if (slotCount >= totalSlots) break;
@@ -138,20 +157,22 @@ const CreateClassPage = () => {
             "Friday",
             "Saturday",
           ].indexOf(dayOfWeek);
-          const date = dayjs(startDate)
-            .add(week * 7, "day")
-            .day(dayIndex);
+          const firstOccurrence = getFirstOccurrence(startDateClean, dayIndex);
+          const date = firstOccurrence.add(week * 7, "day");
+          console.log(`  week=${week}, dayOfWeek=${dayOfWeek}(${dayIndex}), firstOcc=${firstOccurrence.format("YYYY-MM-DD")}, date=${date.format("YYYY-MM-DD")}`);
           schedules.push({
-            class_date: date.format("YYYY-MM-DD"),
-            start_time: dayjs(startTime).format("HH:mm:ss"),
-            end_time: dayjs(endTime).format("HH:mm:ss"),
+            classDate: date.format("YYYY-MM-DD"),
+            startTime: dayjs(startTime).format("HH:mm:ss"),
+            endTime: dayjs(endTime).format("HH:mm:ss"),
             description: "",
-            link: link, // Gán link chung cho tất cả schedules
+            link: link,
           });
           slotCount++;
         }
       }
     }
+
+    console.log("=== FINAL SCHEDULES ===", schedules.map(s => s.classDate));
     return schedules;
   };
 
@@ -169,10 +190,16 @@ const CreateClassPage = () => {
     setLoading(true);
     try {
       const schedules = generateSchedules();
+      console.log("===== GENERATED SCHEDULES =====", JSON.stringify(schedules, null, 2));
+      console.log("Total schedules:", schedules.length);
+      const lastSchedule = schedules[schedules.length - 1];
       const result = await classroomService.createClass({
-        name: className,
-        course_id: courseId,
-        teacher_id: teacherId,
+        className: className,
+        courseId: courseId,
+        teacherId: teacherId,
+        startDate: startDate ? dayjs(startDate).format("YYYY-MM-DD") : null,
+        endDate: lastSchedule ? lastSchedule.classDate : (startDate ? dayjs(startDate).format("YYYY-MM-DD") : null),
+        maxStudents: 20,
         schedules,
         link, // Gửi link chung
       });

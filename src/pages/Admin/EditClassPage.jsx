@@ -97,9 +97,14 @@ const EditClassPage = () => {
       toast.error("Vui lòng điền đầy đủ ngày và giờ");
       return;
     }
+    const updatedSchedules = [...formData.schedules, { ...newSchedule }].sort((a, b) => {
+      const dateCompare = (a.classDate || "").localeCompare(b.classDate || "");
+      if (dateCompare !== 0) return dateCompare;
+      return (a.startTime || "").localeCompare(b.startTime || "");
+    });
     setFormData({
       ...formData,
-      schedules: [...formData.schedules, { ...newSchedule }],
+      schedules: updatedSchedules,
     });
     setNewSchedule({
       classDate: "",
@@ -323,56 +328,88 @@ const EditClassPage = () => {
             </div>
 
             {/* Thêm buổi học thủ công */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8 p-5 bg-gray-800/40 rounded-2xl border border-gray-700/50">
-              <div className="md:col-span-1 space-y-1">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-tighter">Ngày học</label>
-                <input
-                  type="date"
-                  name="classDate"
-                  value={newSchedule.classDate}
-                  onChange={handleScheduleChange}
-                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-1 focus:ring-blue-500 outline-none"
-                />
-              </div>
-              <div className="md:col-span-1 space-y-1">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-tighter">Giờ học</label>
-                <div className="flex items-center space-x-1">
+            <div className="mb-8 p-5 bg-slate-800/60 rounded-2xl border border-slate-700/50">
+              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center">
+                <Plus size={13} className="mr-2 text-blue-400" />
+                Thêm buổi học thủ công
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Ngày học */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center">
+                    <Calendar size={11} className="mr-1.5 text-blue-400" /> Ngày học
+                  </label>
+                  <input
+                    type="date"
+                    name="classDate"
+                    value={newSchedule.classDate}
+                    onChange={handleScheduleChange}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all"
+                  />
+                </div>
+                {/* Giờ bắt đầu */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center">
+                    <Clock size={11} className="mr-1.5 text-green-400" /> Giờ bắt đầu
+                  </label>
                   <input
                     type="time"
                     name="startTime"
                     value={newSchedule.startTime}
                     onChange={handleScheduleChange}
-                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-2 py-2 text-xs text-white focus:ring-1 focus:ring-blue-500 outline-none"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:ring-2 focus:ring-green-500 outline-none text-sm transition-all"
                   />
-                  <span className="text-gray-600">-</span>
+                </div>
+                {/* Giờ kết thúc */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center">
+                    <Clock size={11} className="mr-1.5 text-orange-400" /> Giờ kết thúc
+                  </label>
                   <input
                     type="time"
                     name="endTime"
                     value={newSchedule.endTime}
                     onChange={handleScheduleChange}
-                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-2 py-2 text-xs text-white focus:ring-1 focus:ring-blue-500 outline-none"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:ring-2 focus:ring-orange-500 outline-none text-sm transition-all"
+                  />
+                </div>
+                {/* Link */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center">
+                    <LinkIcon size={11} className="mr-1.5 text-purple-400" /> Link buổi học
+                  </label>
+                  <input
+                    type="text"
+                    name="link"
+                    value={newSchedule.link}
+                    onChange={handleScheduleChange}
+                    placeholder="Zoom / Google Meet..."
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:ring-2 focus:ring-purple-500 outline-none text-sm transition-all placeholder:text-slate-600"
+                  />
+                </div>
+                {/* Mô tả */}
+                <div className="space-y-1.5 sm:col-span-1 lg:col-span-2">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Mô tả buổi học
+                  </label>
+                  <input
+                    type="text"
+                    name="description"
+                    value={newSchedule.description}
+                    onChange={handleScheduleChange}
+                    placeholder="Ví dụ: Kiểm tra giữa kỳ, Ôn tập chương 3..."
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all placeholder:text-slate-600"
                   />
                 </div>
               </div>
-              <div className="md:col-span-2 space-y-1">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-tighter">Mô tả buổi học</label>
-                <input
-                  type="text"
-                  name="description"
-                  value={newSchedule.description}
-                  onChange={handleScheduleChange}
-                  placeholder="Ví dụ: Kiểm tra giữa kỳ..."
-                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-1 focus:ring-blue-500 outline-none"
-                />
-              </div>
-              <div className="flex items-end">
+              <div className="mt-4 flex justify-end">
                 <button
                   type="button"
                   onClick={addSchedule}
-                  className="w-full bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 px-4 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-blue-900/30 flex items-center"
                 >
-                  <Plus size={16} className="mr-1" />
-                  THÊM BUỔI
+                  <Plus size={16} className="mr-2" />
+                  Thêm buổi học
                 </button>
               </div>
             </div>
@@ -405,7 +442,7 @@ const EditClassPage = () => {
                             </span>
                             <span className="text-gray-400 text-xs mt-1 flex items-center">
                               <Clock size={12} className="mr-2" />
-                              {dayjs(schedule.startTime, "HH:mm:ss").format("HH:mm")} - {dayjs(schedule.endTime, "HH:mm:ss").format("HH:mm")}
+                              {(schedule.startTime || "").substring(0, 5) || "--:--"} - {(schedule.endTime || "").substring(0, 5) || "--:--"}
                             </span>
                           </div>
                         </td>

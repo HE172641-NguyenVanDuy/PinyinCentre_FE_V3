@@ -24,7 +24,7 @@ export const classroomService = {
    * Create a new class along with its schedules.
    */
   createClass: async (classData) => {
-    return api.post("/classroom/create-class", classData);
+    return api.post("/classroom/create", classData);
   },
 
   /**

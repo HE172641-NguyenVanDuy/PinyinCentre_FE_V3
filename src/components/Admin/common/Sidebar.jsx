@@ -74,7 +74,7 @@ const Sidebar = () => {
       animate={{ width: isSidebarOpen ? 256 : 80 }}
     >
       <div className="h-full bg-gray-800 bg-opacity-50 backdrop-blur-md p-4 flex flex-col border-r border-gray-700">
-        <Link to="/" className="flex items-center justify-center mb-6">
+        <Link to="/admin" className="flex items-center justify-center mb-6">
           <img src={logo} className="w-10 h-10 object-contain" alt="Logo" />
           <AnimatePresence>
             {isSidebarOpen && (
