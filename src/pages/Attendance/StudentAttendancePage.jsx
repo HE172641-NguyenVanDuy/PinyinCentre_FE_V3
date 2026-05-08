@@ -37,7 +37,7 @@ const StudentAttendancePage = () => {
       // Lấy lịch học của lớp
       const resSchedules = await apiFetch(`/schedule/by-class/${classId}`);
       const dataSchedules = await resSchedules.json();
-      const schedules = dataSchedules.data || [];
+      const schedules = dataSchedules.result || [];
       // Lấy điểm danh của user cho tất cả schedule
       const resAttendance = await apiFetch(`/attendance/by-user/${user.id}`);
       const dataAttendance = await resAttendance.json();

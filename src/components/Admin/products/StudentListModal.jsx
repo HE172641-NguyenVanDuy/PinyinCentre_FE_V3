@@ -18,9 +18,9 @@ const StudentListModal = ({ classId, onClose, onAddSuccess }) => {
     setLoading(true);
     try {
       const data = await userService.getStudentsNotInClass(classId);
-      if (data.status === 200 && Array.isArray(data.data)) {
-        setStudents(data.data);
-        setFilteredStudents(data.data);
+      if (data.status === 200 && Array.isArray(data.result)) {
+        setStudents(data.result);
+        setFilteredStudents(data.result);
       } else {
         toast.error(data.message || "Lấy dữ liệu học sinh thất bại");
       }

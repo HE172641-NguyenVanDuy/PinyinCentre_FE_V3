@@ -36,7 +36,7 @@ const ScheduleTable = () => {
       );
       const data = await response.json();
       if (response.ok && data.status === 200) {
-        setSchedules(data.data || []);
+        setSchedules(data.result || []);
       } else {
         toast.error(`Lỗi: ${data.message || "Không thể lấy dữ liệu lịch học"}`);
       }

@@ -27,7 +27,7 @@ const AttendancePage = () => {
       const dataStudents = await resStudents.json();
       if (dataStudents.status !== 200)
         throw new Error("Không tìm thấy học sinh");
-      setStudents(dataStudents.data || []);
+      setStudents(dataStudents.result || []);
       // Lấy trạng thái điểm danh (nếu đã có)
       const resAttendance = await apiFetch(
         `/attendance/by-schedule/${scheduleId}`
