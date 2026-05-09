@@ -11,7 +11,8 @@ import FloatingChatIcons from "../../components/Shared/FloatingChatIcons";
 const defaultStats = {
   totalClasses: 0,
   todayClasses: 0,
-  upcomingClasses: 0,
+  weeklyClasses: 0,
+  activeClasses: 0,
   completedExams: 0,
 };
 
@@ -143,14 +144,14 @@ const StudentDashboard = () => {
           >
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-gradient-to-r from-purple-500 to-purple-600">
-                <FileText className="h-6 w-6 text-white" />
+                <Clock className="h-6 w-6 text-white" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">
-                  Đề thi đã làm
+                  Lịch học hôm nay
                 </p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {stats?.completedExams ?? 0}
+                  {stats?.todayClasses ?? 0}
                 </p>
               </div>
             </div>
@@ -167,9 +168,9 @@ const StudentDashboard = () => {
                 <Users className="h-6 w-6 text-white" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Bạn học</p>
+                <p className="text-sm font-medium text-gray-600">Lớp học của tôi</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {stats?.classmates ?? 0}
+                  {stats?.totalClasses ?? 0}
                 </p>
               </div>
             </div>
