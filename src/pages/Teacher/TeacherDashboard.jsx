@@ -14,7 +14,7 @@ import {
   CheckCircle,
   Info,
 } from "lucide-react";
-import Header from "../../components/Admin/common/Header";
+
 import { useAuth } from "../../components/Shared/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../../utils/api";
@@ -142,8 +142,6 @@ const TeacherDashboard = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Header title={activeTab === "overview" ? "Dashboard Giáo viên" : activeTab === "schedule" ? "Lịch dạy của tôi" : "Lớp học & Học viên"} />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Navigation Tabs */}
         <div className="flex space-x-4 mb-8 bg-white p-2 rounded-2xl shadow-sm border border-slate-100 w-fit">
@@ -206,19 +204,17 @@ const TeacherDashboard = () => {
               {/* Stats Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                  { label: "Tổng số lớp", value: stats.totalClasses, icon: BookOpen, color: "blue", tab: "classes" },
-                  { label: "Tổng học viên", value: stats.totalStudents, icon: Users, color: "green", tab: "classes" },
-                  { label: "Lớp hôm nay", value: stats.todayClasses, icon: CalendarIcon, color: "purple", tab: "schedule" },
-                  { label: "Giờ dạy tuần", value: `${stats.weeklyHours}h`, icon: Clock, color: "orange", tab: "schedule" },
+                  { label: "Tổng số lớp", value: stats.totalClasses, icon: BookOpen, color: "blue" },
+                  { label: "Tổng học viên", value: stats.totalStudents, icon: Users, color: "green" },
+                  { label: "Lớp hôm nay", value: stats.todayClasses, icon: CalendarIcon, color: "purple" },
+                  { label: "Giờ dạy tuần", value: `${stats.weeklyHours}h`, icon: Clock, color: "orange" },
                 ].map((stat, idx) => (
                   <motion.div
                     key={idx}
-                    whileHover={{ y: -5 }}
-                    onClick={() => setActiveTab(stat.tab)}
-                    className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 cursor-pointer group"
+                    className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100"
                   >
                     <div className="flex items-center justify-between mb-4">
-                      <div className={`p-3 rounded-xl bg-${stat.color}-50 text-${stat.color}-600 group-hover:bg-${stat.color}-600 group-hover:text-white transition-colors`}>
+                      <div className={`p-3 rounded-xl bg-${stat.color}-50 text-${stat.color}-600 transition-colors`}>
                         <stat.icon size={24} />
                       </div>
                       <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Thống kê</span>

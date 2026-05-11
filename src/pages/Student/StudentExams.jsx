@@ -10,7 +10,7 @@ import {
   Users,
   Award,
 } from "lucide-react";
-import Header from "../../components/Admin/common/Header";
+
 import { useAuth } from "../../components/Shared/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../../utils/api";
@@ -124,8 +124,6 @@ const StudentExams = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <Header title="Thư viện đề thi" />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <motion.button
           initial={{ opacity: 0, x: -20 }}

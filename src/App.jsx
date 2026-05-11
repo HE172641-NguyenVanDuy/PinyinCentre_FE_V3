@@ -74,33 +74,35 @@ const App = () => {
               path="/courses/combo-hsk-:levels"
               element={<ComboHSKCourses />}
             />
+
+            {/* Teacher Routes */}
+            <Route path="/teacher" element={<TeacherDashboard />} />
+            <Route path="/teacher/schedule" element={<TeacherSchedule />} />
+            <Route path="/teacher/classes" element={<TeacherClasses />} />
+
+            {/* Student Routes */}
+            <Route path="/student" element={<StudentDashboard />} />
+            <Route path="/student/exams" element={<StudentExams />} />
+            <Route path="/student/exams/:level" element={<HSKLevelExams />} />
+            <Route path="/student/exam/:examId" element={<ExamPage />} />
+            <Route path="/student/schedule" element={<StudentSchedule />} />
+            <Route path="/student/classes" element={<StudentClasses />} />
+
+            {/* Attendance Routes */}
+            <Route path="/attendance" element={<AttendancePage />} />
+            <Route
+              path="/attendance/student"
+              element={<StudentAttendancePage />}
+            />
           </Route>
+
           <Route path="*" element={<NotFound />} />
           <Route path="/admin/*" element={<Admin />} />
           <Route path="/login/*" element={<Login />} />
 
-          {/* Teacher Routes */}
-          <Route path="/teacher" element={<TeacherDashboard />} />
-          <Route path="/teacher/schedule" element={<TeacherSchedule />} />
-          <Route path="/teacher/classes" element={<TeacherClasses />} />
-
-          {/* Student Routes */}
-          <Route path="/student" element={<StudentDashboard />} />
-          <Route path="/student/exams" element={<StudentExams />} />
-          <Route path="/student/exams/:level" element={<HSKLevelExams />} />
-          <Route path="/student/exam/:examId" element={<ExamPage />} />
-          <Route path="/student/schedule" element={<StudentSchedule />} />
-          <Route path="/student/classes" element={<StudentClasses />} />
-
           {/* Google OAuth Callback */}
           <Route path="/callback" element={<GoogleCallback />} />
 
-          {/* Attendance Routes */}
-          <Route path="/attendance" element={<AttendancePage />} />
-          <Route
-            path="/attendance/student"
-            element={<StudentAttendancePage />}
-          />
         </Routes>
       </Router>
       <Analytics />

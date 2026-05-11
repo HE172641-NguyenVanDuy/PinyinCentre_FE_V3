@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../components/Shared/AuthContext";
 import { apiFetch } from "../../utils/api";
-import Header from "../../components/Admin/common/Header";
+
 
 const StudentAttendancePage = () => {
   const { user } = useAuth();
@@ -71,8 +71,8 @@ const StudentAttendancePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <Header title="Tình trạng điểm danh của tôi" />
       <div className="max-w-2xl mx-auto px-4 py-8">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Tình trạng điểm danh của tôi</h2>
         <div className="mb-6">
           <label className="font-semibold mr-2">Chọn lớp:</label>
           <select

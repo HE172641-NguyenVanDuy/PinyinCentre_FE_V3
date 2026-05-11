@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { apiFetch } from "../../utils/api";
 import { toast } from "react-toastify";
-import Header from "../../components/Admin/common/Header";
+
 
 const AttendancePage = () => {
   const [searchParams] = useSearchParams();
@@ -83,8 +83,8 @@ const AttendancePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
-      <Header title="Điểm danh buổi học" />
       <div className="max-w-2xl mx-auto px-4 py-8">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Điểm danh buổi học</h2>
         <button
           onClick={() => navigate(-1)}
           className="mb-6 px-5 py-2 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold"

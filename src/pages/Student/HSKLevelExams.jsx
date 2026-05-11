@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, Play, Clock, Star, FileText } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
-import Header from "../../components/Admin/common/Header";
+
 import { useAuth } from "../../components/Shared/AuthContext";
 import { getExamsByLevel } from "../../Data/hsk-exams";
 import FloatingChatIcons from "../../components/Shared/FloatingChatIcons";
@@ -108,8 +108,6 @@ const HSKLevelExams = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <Header title={`Thư viện đề thi ${level}`} />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <motion.button

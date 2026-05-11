@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Users, Clock, MapPin } from "lucide-react";
 import { SiGooglemeet } from "react-icons/si";
-import Header from "../../components/Admin/common/Header";
+
 import { useAuth } from "../../components/Shared/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { apiFetch } from "../../utils/api";
@@ -95,7 +95,6 @@ const TeacherSchedule = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
-      <Header title="Lịch dạy" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <motion.button
           initial={{ opacity: 0, x: -20 }}

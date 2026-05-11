@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { FaFacebook, FaTiktok, FaCaretDown } from "react-icons/fa";
 import { HiMenuAlt3, HiX } from "react-icons/hi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Bell, User, ChevronDown, LogOut, Layout } from "lucide-react";
+import ProfileModal from "../Shared/ProfileModal";
+import { useAuth } from "../Shared/AuthContext";
+import { motion, AnimatePresence } from "framer-motion";
 import DarkMode from "./DarkMode";
 
 const Logo = "/assets/logo/logoPinyin1.png";
@@ -29,6 +33,28 @@ const DocumentDropdownLinks = [
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  const getRoleName = (role) => {
+    switch (role) {
+      case 1:
+        return "Admin";
+      case 2:
+        return "Giáo viên";
+      case 3:
+        return "Học sinh";
+      default:
+        return "User";
+    }
+  };
 
   return (
     <div className="sticky top-0 z-50 shadow-md bg-white dark:bg-gray-900">
@@ -115,12 +141,115 @@ const Navbar = () => {
             >
               <FaTiktok className="text-2xl hover:text-black dark:hover:text-white hover:scale-110 transition" />
             </a>
-            <Link
-              to="/login"
-              className="px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white text-sm font-semibold hover:brightness-110 shadow-lg transition"
-            >
-              Đăng Nhập
-            </Link>
+            {user ? (
+              <div className="flex items-center gap-4">
+                {/* Notification Bell */}
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="relative p-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                >
+                  <Bell size={22} />
+                  <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 border-2 border-white dark:border-gray-900 rounded-full"></span>
+                </motion.button>
+
+                {/* User Profile Dropdown */}
+                <div className="relative">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                    className="flex items-center gap-3 pl-2 pr-4 py-1.5 bg-gradient-to-r from-red-500 to-orange-500 rounded-full text-white shadow-md hover:shadow-lg transition-all"
+                  >
+                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                      <User size={18} />
+                    </div>
+                    <div className="hidden md:block text-left leading-tight">
+                      <p className="text-sm font-bold truncate max-w-[120px]">
+                        {user.fullName || "User"}
+                      </p>
+                      <p className="text-[10px] opacity-90 font-medium">
+                        {getRoleName(user.role)}
+                      </p>
+                    </div>
+                    <ChevronDown
+                      size={14}
+                      className={`transition-transform duration-300 ${
+                        isProfileDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </motion.button>
+
+                  <AnimatePresence>
+                    {isProfileDropdownOpen && (
+                      <>
+                        <div 
+                          className="fixed inset-0 z-10" 
+                          onClick={() => setIsProfileDropdownOpen(false)}
+                        ></div>
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          className="absolute right-0 mt-3 w-56 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 py-2 z-20 overflow-hidden"
+                        >
+                          <div className="px-4 py-3 border-b border-gray-50 dark:border-gray-700">
+                            <p className="text-sm font-bold text-gray-900 dark:text-white">
+                              {user.fullName}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {user.email}
+                            </p>
+                          </div>
+                          <div className="p-1">
+                            <button
+                              onClick={() => {
+                                setIsProfileDropdownOpen(false);
+                                setIsProfileModalOpen(true);
+                              }}
+                              className="flex items-center w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-colors"
+                            >
+                              <User size={16} className="mr-3 text-orange-500" />
+                              Hồ sơ
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIsProfileDropdownOpen(false);
+                                navigate(
+                                  user.role === 2
+                                    ? "/teacher"
+                                    : user.role === 3
+                                    ? "/student"
+                                    : "/admin"
+                                );
+                              }}
+                              className="flex items-center w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-colors"
+                            >
+                              <Layout size={16} className="mr-3 text-blue-500" />
+                              Bảng điều khiển
+                            </button>
+                            <button
+                              onClick={handleLogout}
+                              className="flex items-center w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors"
+                            >
+                              <LogOut size={16} className="mr-3" />
+                              Đăng xuất
+                            </button>
+                          </div>
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="px-6 py-2.5 rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white text-sm font-bold hover:brightness-110 shadow-lg shadow-orange-200 dark:shadow-none transition-all active:scale-95"
+              >
+                Đăng Nhập
+              </Link>
+            )}
             <DarkMode />
 
             {/* Mobile Button */}
@@ -230,18 +359,35 @@ const Navbar = () => {
             >
               <FaTiktok className="text-2xl hover:text-black dark:hover:text-white hover:scale-110 transition" />
             </a>
-            <Link
-              to="/login"
-              className="block w-full text-center px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white text-sm font-semibold hover:brightness-110 shadow-lg transition"
-              onClick={() => setIsOpen(false)}
-            >
-              Đăng Nhập
-            </Link>
+            {user ? (
+               <button
+               onClick={() => {
+                 setIsOpen(false);
+                 navigate(user.role === 2 ? "/teacher" : user.role === 3 ? "/student" : "/admin");
+               }}
+               className="block w-full text-center px-4 py-2.5 rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white text-sm font-bold shadow-lg"
+             >
+               Vào Dashboard
+             </button>
+            ) : (
+              <Link
+                to="/login"
+                className="block w-full text-center px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white text-sm font-semibold hover:brightness-110 shadow-lg transition"
+                onClick={() => setIsOpen(false)}
+              >
+                Đăng Nhập
+              </Link>
+            )}
 
             <DarkMode />
           </div>
         </div>
       )}
+      {/* Profile Modal */}
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+      />
     </div>
   );
 };
