@@ -5,6 +5,8 @@ import Home from "./pages/Home";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import DocumentsPage from "./pages/Documents";
 import Layout from "./components/Shared/Layout";
 import Contact from "./pages/Contact";
@@ -102,6 +104,10 @@ const App = () => {
 
           {/* Google OAuth Callback */}
           <Route path="/callback" element={<GoogleCallback />} />
+
+          {/* Auth Routes */}
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
         </Routes>
       </Router>
