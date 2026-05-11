@@ -8,6 +8,8 @@ import ChangePasswordModal from "../Shared/ChangePasswordModal";
 import { useAuth } from "../Shared/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import DarkMode from "./DarkMode";
+import notificationService from "../../utils/notificationService";
+import { useEffect } from "react";
 
 const Logo = "/assets/logo/logoPinyin1.png";
 
@@ -39,6 +41,46 @@ const Navbar = () => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+      const interval = setInterval(fetchNotifications, 60000); // Fetch every minute
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+
+  const fetchNotifications = async () => {
+    try {
+      const data = await notificationService.getNotifications();
+      const count = await notificationService.getUnreadCount();
+      setNotifications(data);
+      setUnreadCount(count);
+    } catch (error) {
+      console.error("Failed to fetch notifications", error);
+    }
+  };
+
+  const handleMarkAsRead = async (id) => {
+    try {
+      await notificationService.markAsRead(id);
+      fetchNotifications();
+    } catch (error) {
+      console.error("Failed to mark as read", error);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await notificationService.markAllAsRead();
+      fetchNotifications();
+    } catch (error) {
+      console.error("Failed to mark all as read", error);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -146,14 +188,69 @@ const Navbar = () => {
             {user ? (
               <div className="flex items-center gap-4">
                 {/* Notification Bell */}
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="relative p-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
-                >
-                  <Bell size={22} />
-                  <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 border-2 border-white dark:border-gray-900 rounded-full"></span>
-                </motion.button>
+                <div className="relative">
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                    className="relative p-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                  >
+                    <Bell size={22} />
+                    {unreadCount > 0 && (
+                      <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 border-2 border-white dark:border-gray-900 rounded-full"></span>
+                    )}
+                  </motion.button>
+
+                  <AnimatePresence>
+                    {isNotificationOpen && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-10"
+                          onClick={() => setIsNotificationOpen(false)}
+                        ></div>
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          className="absolute right-0 mt-3 w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 py-2 z-20 overflow-hidden"
+                        >
+                          <div className="px-4 py-3 border-b border-gray-50 dark:border-gray-700 flex justify-between items-center">
+                            <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                              Thông báo ({unreadCount})
+                            </h3>
+                            <button
+                              onClick={handleMarkAllAsRead}
+                              className="text-xs text-blue-500 hover:underline"
+                            >
+                              Đánh dấu tất cả đã đọc
+                            </button>
+                          </div>
+                          <div className="max-h-96 overflow-y-auto">
+                            {notifications.length > 0 ? (
+                              notifications.map((n) => (
+                                <div
+                                  key={n.id}
+                                  onClick={() => handleMarkAsRead(n.id)}
+                                  className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-50 dark:border-gray-700 cursor-pointer transition-colors ${!n.read ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
+                                >
+                                  <p className="text-sm font-bold text-gray-800 dark:text-white">{n.title}</p>
+                                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{n.message}</p>
+                                  <p className="text-[10px] text-gray-400 mt-1">
+                                    {new Date(n.createdDate).toLocaleString()}
+                                  </p>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400 text-sm">
+                                Không có thông báo nào
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
 
                 {/* User Profile Dropdown */}
                 <div className="relative">
