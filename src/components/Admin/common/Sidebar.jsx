@@ -60,6 +60,12 @@ const SIDEBAR_ITEMS = [
     color: "#3B82F6",
     href: "/admin/analytics",
   },
+  {
+    name: "HSK Category",
+    icon: ClipboardList,
+    color: "#F59E0B",
+    href: "/admin/hsk-categories",
+  },
 ];
 
 

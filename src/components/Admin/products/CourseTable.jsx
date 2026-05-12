@@ -1,35 +1,48 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Edit, Trash2, Plus } from "lucide-react";
+import { Search, Edit, Trash2, Plus, Layers } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { courseService } from "../../../utils/courseService";
+import { hskCategoryService } from "../../../utils/hskCategoryService";
 
 const CourseTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [courses, setCourses] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [filteredList, setFilteredList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
-  const [formData, setFormData] = useState({ courseName: "", slotNumber: 0 });
+  const [formData, setFormData] = useState({ 
+    courseName: "", 
+    slotNumber: 0, 
+    price: 0,
+    hskCategoryId: ""
+  });
   
-  const rowsPerPage = 5;
+  const rowsPerPage = 10;
 
   const loadData = async () => {
     try {
       setLoading(true);
-      const data = await courseService.getAllCourses(1, 1000);
-      if (data.status === 200 && Array.isArray(data.result)) {
-        setCourses(data.result);
-        setFilteredList(data.result);
-      } else {
-        toast.error(data.message || "Lấy dữ liệu thất bại");
+      const [courseData, catData] = await Promise.all([
+        courseService.getAllCourses(1, 1000),
+        hskCategoryService.getAllCategories()
+      ]);
+
+      if (courseData.status === 200 && Array.isArray(courseData.result)) {
+        setCourses(courseData.result);
+        setFilteredList(courseData.result);
+      }
+      
+      if (catData.status === 200 && Array.isArray(catData.result)) {
+        setCategories(catData.result);
       }
     } catch (error) {
-      console.error("Lỗi lấy danh sách khóa học:", error);
-      toast.error("Lỗi khi lấy danh sách khóa học");
+      console.error("Lỗi lấy dữ liệu:", error);
+      toast.error("Lỗi khi lấy dữ liệu từ hệ thống");
     } finally {
       setLoading(false);
     }
@@ -45,7 +58,7 @@ const CourseTable = () => {
     const filtered = courses.filter(
       (item) =>
         item.courseName?.toLowerCase().includes(term) ||
-        item.id?.toLowerCase().includes(term)
+        item.hskCategoryName?.toLowerCase().includes(term)
     );
     setFilteredList(filtered);
     setCurrentPage(1);
@@ -54,10 +67,20 @@ const CourseTable = () => {
   const handleOpenModal = (course = null) => {
     if (course) {
       setEditingCourse(course);
-      setFormData({ courseName: course.courseName, slotNumber: course.slotNumber });
+      setFormData({ 
+        courseName: course.courseName, 
+        slotNumber: course.slotNumber,
+        price: course.price || 0,
+        hskCategoryId: course.hskCategoryId || ""
+      });
     } else {
       setEditingCourse(null);
-      setFormData({ courseName: "", slotNumber: 0 });
+      setFormData({ 
+        courseName: "", 
+        slotNumber: 0, 
+        price: 0,
+        hskCategoryId: ""
+      });
     }
     setShowModal(true);
   };
@@ -67,8 +90,15 @@ const CourseTable = () => {
     setLoading(true);
     const dataToSave = {
       ...formData,
-      slotNumber: parseInt(formData.slotNumber) || 0
+      slotNumber: parseInt(formData.slotNumber) || 0,
+      price: parseInt(formData.price) || 0
     };
+
+    if (dataToSave.price < 2000 || dataToSave.price > 500000000) {
+      toast.error("Giá tiền phải trong khoảng 2.000 VNĐ đến 500.000.000 VNĐ");
+      setLoading(false);
+      return;
+    }
     
     try {
       let result;
@@ -87,7 +117,7 @@ const CourseTable = () => {
       }
     } catch (error) {
       console.error("Save course error:", error);
-      toast.error("Lỗi khi lưu khóa học");
+      toast.error(error.response?.data?.message || "Lỗi khi lưu khóa học");
     } finally {
       setLoading(false);
     }
@@ -105,7 +135,6 @@ const CourseTable = () => {
         toast.error(result.message || "Thao tác thất bại");
       }
     } catch (error) {
-      console.error("Delete course error:", error);
       toast.error("Lỗi khi cập nhật trạng thái");
     } finally {
       setLoading(false);
@@ -134,7 +163,7 @@ const CourseTable = () => {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Tìm kiếm khóa học..."
+                placeholder="Tìm kiếm..."
                 className="bg-gray-700 text-white placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onChange={handleSearch}
                 value={searchTerm}
@@ -157,8 +186,9 @@ const CourseTable = () => {
             <thead>
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Tên khóa học</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Số buổi học</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Ngày tạo</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Danh mục HSK</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Số buổi</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Giá tiền</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Hành động</th>
               </tr>
             </thead>
@@ -166,11 +196,17 @@ const CourseTable = () => {
               {paginatedData.map((item) => (
                 <motion.tr key={item.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100 font-medium">{item.courseName}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                    <div className="flex items-center gap-2">
+                      <Layers size={14} className="text-yellow-500" />
+                      {item.hskCategoryName || <span className="text-gray-600 italic">Chưa gán</span>}
+                    </div>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                     <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded-full text-xs">{item.slotNumber} buổi</span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                    {item.createdDate ? new Date(item.createdDate).toLocaleDateString("vi-VN") : "N/A"}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price || 0)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 space-x-2">
                     <button onClick={() => handleOpenModal(item)} className="text-blue-400 hover:text-blue-300 transition-colors">
@@ -218,20 +254,54 @@ const CourseTable = () => {
                   className="w-full bg-gray-700 text-white rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+              
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Số buổi học</label>
-                <input
-                  type="number"
-                  required
-                  min="1"
-                  value={formData.slotNumber}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value);
-                    setFormData({ ...formData, slotNumber: isNaN(val) ? "" : val });
-                  }}
+                <label className="block text-sm font-medium text-gray-400 mb-1">Danh mục HSK</label>
+                <select
+                  value={formData.hskCategoryId}
+                  onChange={(e) => setFormData({ ...formData, hskCategoryId: e.target.value })}
                   className="w-full bg-gray-700 text-white rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                >
+                  <option value="">-- Chọn danh mục HSK --</option>
+                  {categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Số buổi học</label>
+                  <input
+                    type="number"
+                    required
+                    min="1"
+                    value={formData.slotNumber}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      setFormData({ ...formData, slotNumber: isNaN(val) ? "" : val });
+                    }}
+                    className="w-full bg-gray-700 text-white rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Giá tiền (VNĐ)</label>
+                  <input
+                    type="number"
+                    required
+                    min="2000"
+                    max="500000000"
+                    value={formData.price}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      setFormData({ ...formData, price: isNaN(val) ? "" : val });
+                    }}
+                    className="w-full bg-gray-700 text-white rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 text-right">Khoảng: 2.000đ - 500trđ</p>
+
               <div className="flex gap-3 pt-4">
                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 px-4 py-2 rounded-xl bg-gray-700 text-white hover:bg-gray-600 transition-colors">Hủy</button>
                 <button type="submit" disabled={loading} className="flex-1 px-4 py-2 rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition-colors">

@@ -36,6 +36,9 @@ import ExamPage from "./pages/Student/ExamPage";
 import AttendancePage from "./pages/Attendance/AttendancePage";
 import StudentAttendancePage from "./pages/Attendance/StudentAttendancePage";
 import GoogleCallback from "./pages/GoogleCallback";
+import CheckoutConfirmationPage from "./pages/Checkout/CheckoutConfirmationPage";
+import MyCoursesPage from "./pages/Student/MyCoursesPage";
+import StudentDashboardLayout from "./components/Student/StudentDashboardLayout";
 
 const App = () => {
   useEffect(() => {
@@ -71,6 +74,7 @@ const App = () => {
             {/* Course Routes */}
             <Route path="/courses/hsk" element={<HSKCourses />} />
             <Route path="/courses/hsk-:level" element={<HSKCourses />} />
+            <Route path="/checkout/:courseId" element={<CheckoutConfirmationPage />} />
             <Route path="/courses/combo-hsk" element={<ComboHSKCourses />} />
             <Route
               path="/courses/combo-hsk-:levels"
@@ -82,13 +86,16 @@ const App = () => {
             <Route path="/teacher/schedule" element={<TeacherSchedule />} />
             <Route path="/teacher/classes" element={<TeacherClasses />} />
 
-            {/* Student Routes */}
-            <Route path="/student" element={<StudentDashboard />} />
-            <Route path="/student/exams" element={<StudentExams />} />
-            <Route path="/student/exams/:level" element={<HSKLevelExams />} />
-            <Route path="/student/exam/:examId" element={<ExamPage />} />
-            <Route path="/student/schedule" element={<StudentSchedule />} />
-            <Route path="/student/classes" element={<StudentClasses />} />
+            {/* Student Routes with Layout */}
+            <Route path="/student" element={<StudentDashboardLayout />}>
+              <Route index element={<StudentDashboard />} />
+              <Route path="exams" element={<StudentExams />} />
+              <Route path="exams/:level" element={<HSKLevelExams />} />
+              <Route path="exam/:examId" element={<ExamPage />} />
+              <Route path="schedule" element={<StudentSchedule />} />
+              <Route path="classes" element={<StudentClasses />} />
+              <Route path="my-courses" element={<MyCoursesPage />} />
+            </Route>
 
             {/* Attendance Routes */}
             <Route path="/attendance" element={<AttendancePage />} />
