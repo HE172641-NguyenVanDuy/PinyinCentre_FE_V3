@@ -11,6 +11,7 @@ import {
   Phone,
   User,
   ChevronLeft,
+  FileText,
 } from "lucide-react";
 
 import { useAuth } from "../../components/Shared/AuthContext";
@@ -244,13 +245,20 @@ const TeacherClasses = () => {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex space-x-2">
+                    <div className="flex flex-col space-y-2">
                       <button
                         onClick={() => handleShowStudents(cls)}
                         className="flex-1 bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-3 rounded-lg hover:shadow-lg transition-all flex items-center justify-center font-semibold"
                       >
                         <Users className="h-4 w-4 mr-2" />
                         Xem học sinh
+                      </button>
+                      <button
+                        onClick={() => navigate(`/teacher/assignments/${cls.id}`)}
+                        className="flex-1 bg-white border border-blue-500 text-blue-600 px-4 py-3 rounded-lg hover:bg-blue-50 transition-all flex items-center justify-center font-semibold"
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        Giao bài tập
                       </button>
                     </div>
                   </div>

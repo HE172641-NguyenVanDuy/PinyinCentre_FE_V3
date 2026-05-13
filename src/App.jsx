@@ -35,6 +35,12 @@ import AttendancePage from "./pages/Attendance/AttendancePage";
 import StudentAttendancePage from "./pages/Attendance/StudentAttendancePage";
 import GoogleCallback from "./pages/GoogleCallback";
 
+// Assignment pages
+import TeacherAssignments from "./pages/Teacher/TeacherAssignments";
+import AssignmentSubmissions from "./pages/Teacher/AssignmentSubmissions";
+import StudentAssignments from "./pages/Student/StudentAssignments";
+import StudentAssignmentDetail from "./pages/Student/StudentAssignmentDetail";
+
 const App = () => {
   useEffect(() => {
     const script = document.createElement("script");
@@ -79,6 +85,8 @@ const App = () => {
             <Route path="/teacher" element={<TeacherDashboard />} />
             <Route path="/teacher/schedule" element={<TeacherSchedule />} />
             <Route path="/teacher/classes" element={<TeacherClasses />} />
+            <Route path="/teacher/assignments/:classId" element={<TeacherAssignments />} />
+            <Route path="/teacher/assignments/:classId/submissions/:assignmentId" element={<AssignmentSubmissions />} />
 
             {/* Student Routes */}
             <Route path="/student" element={<StudentDashboard />} />
@@ -87,6 +95,8 @@ const App = () => {
             <Route path="/student/exam/:examId" element={<ExamPage />} />
             <Route path="/student/schedule" element={<StudentSchedule />} />
             <Route path="/student/classes" element={<StudentClasses />} />
+            <Route path="/student/assignments/:classId" element={<StudentAssignments />} />
+            <Route path="/student/assignments/:classId/:assignmentId" element={<StudentAssignmentDetail />} />
 
             {/* Attendance Routes */}
             <Route path="/attendance" element={<AttendancePage />} />

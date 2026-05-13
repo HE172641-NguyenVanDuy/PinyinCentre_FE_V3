@@ -96,7 +96,7 @@ const StudentAttendanceStatus = () => {
             <tbody>
               {attendance.map((item, idx) => (
                 <tr
-                  key={item.attendanceId}
+                  key={item.id || idx}
                   className={
                     idx % 2 === 0
                       ? "bg-white hover:bg-blue-50 transition-all"

@@ -13,6 +13,7 @@ import {
   MapPin,
   CheckCircle,
   Info,
+  FileText,
 } from "lucide-react";
 
 import { useAuth } from "../../components/Shared/AuthContext";
@@ -368,6 +369,13 @@ const TeacherDashboard = () => {
                         >
                           <Users size={18} />
                           <span>{expandedClass === cls.id ? "Ẩn danh sách" : "Xem học viên"}</span>
+                        </button>
+                        <button
+                          onClick={() => navigate(`/teacher/assignments/${cls.id}`)}
+                          className="flex-1 md:flex-none px-6 py-2.5 rounded-xl font-bold bg-white border border-blue-500 text-blue-600 hover:bg-blue-50 transition-all flex items-center justify-center space-x-2"
+                        >
+                          <FileText size={18} />
+                          <span>Giao bài tập</span>
                         </button>
                       </div>
                     </div>
