@@ -5,6 +5,8 @@ import Home from "./pages/Home";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import DocumentsPage from "./pages/Documents";
 import Layout from "./components/Shared/Layout";
 import Contact from "./pages/Contact";
@@ -34,6 +36,9 @@ import ExamPage from "./pages/Student/ExamPage";
 import AttendancePage from "./pages/Attendance/AttendancePage";
 import StudentAttendancePage from "./pages/Attendance/StudentAttendancePage";
 import GoogleCallback from "./pages/GoogleCallback";
+import CheckoutConfirmationPage from "./pages/Checkout/CheckoutConfirmationPage";
+import MyCoursesPage from "./pages/Student/MyCoursesPage";
+import StudentDashboardLayout from "./components/Student/StudentDashboardLayout";
 
 // Assignment pages
 import TeacherAssignments from "./pages/Teacher/TeacherAssignments";
@@ -75,6 +80,7 @@ const App = () => {
             {/* Course Routes */}
             <Route path="/courses/hsk" element={<HSKCourses />} />
             <Route path="/courses/hsk-:level" element={<HSKCourses />} />
+            <Route path="/checkout/:courseId" element={<CheckoutConfirmationPage />} />
             <Route path="/courses/combo-hsk" element={<ComboHSKCourses />} />
             <Route
               path="/courses/combo-hsk-:levels"
@@ -88,6 +94,7 @@ const App = () => {
             <Route path="/teacher/assignments/:classId" element={<TeacherAssignments />} />
             <Route path="/teacher/assignments/:classId/submissions/:assignmentId" element={<AssignmentSubmissions />} />
 
+<<<<<<< HEAD
             {/* Student Routes */}
             <Route path="/student" element={<StudentDashboard />} />
             <Route path="/student/exams" element={<StudentExams />} />
@@ -97,6 +104,18 @@ const App = () => {
             <Route path="/student/classes" element={<StudentClasses />} />
             <Route path="/student/assignments/:classId" element={<StudentAssignments />} />
             <Route path="/student/assignments/:classId/:assignmentId" element={<StudentAssignmentDetail />} />
+=======
+            {/* Student Routes with Layout */}
+            <Route path="/student" element={<StudentDashboardLayout />}>
+              <Route index element={<StudentDashboard />} />
+              <Route path="exams" element={<StudentExams />} />
+              <Route path="exams/:level" element={<HSKLevelExams />} />
+              <Route path="exam/:examId" element={<ExamPage />} />
+              <Route path="schedule" element={<StudentSchedule />} />
+              <Route path="classes" element={<StudentClasses />} />
+              <Route path="my-courses" element={<MyCoursesPage />} />
+            </Route>
+>>>>>>> 741d289559f814906bf88ff89d5cd461bd2cc1e5
 
             {/* Attendance Routes */}
             <Route path="/attendance" element={<AttendancePage />} />
@@ -112,6 +131,10 @@ const App = () => {
 
           {/* Google OAuth Callback */}
           <Route path="/callback" element={<GoogleCallback />} />
+
+          {/* Auth Routes */}
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
         </Routes>
       </Router>

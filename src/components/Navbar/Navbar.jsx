@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { FaFacebook, FaTiktok, FaCaretDown } from "react-icons/fa";
 import { HiMenuAlt3, HiX } from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
-import { Bell, User, ChevronDown, LogOut, Layout } from "lucide-react";
+import { Bell, User, ChevronDown, LogOut, Layout, Lock } from "lucide-react";
 import ProfileModal from "../Shared/ProfileModal";
+import ChangePasswordModal from "../Shared/ChangePasswordModal";
 import { useAuth } from "../Shared/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import DarkMode from "./DarkMode";
@@ -39,6 +40,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -202,8 +204,8 @@ const Navbar = () => {
                   <AnimatePresence>
                     {isNotificationOpen && (
                       <>
-                        <div 
-                          className="fixed inset-0 z-10" 
+                        <div
+                          className="fixed inset-0 z-10"
                           onClick={() => setIsNotificationOpen(false)}
                         ></div>
                         <motion.div
@@ -216,7 +218,7 @@ const Navbar = () => {
                             <h3 className="text-sm font-bold text-gray-900 dark:text-white">
                               Thông báo ({unreadCount})
                             </h3>
-                            <button 
+                            <button
                               onClick={handleMarkAllAsRead}
                               className="text-xs text-blue-500 hover:underline"
                             >
@@ -226,8 +228,8 @@ const Navbar = () => {
                           <div className="max-h-96 overflow-y-auto">
                             {notifications.length > 0 ? (
                               notifications.map((n) => (
-                                <div 
-                                  key={n.id} 
+                                <div
+                                  key={n.id}
                                   onClick={() => handleMarkAsRead(n.id)}
                                   className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-50 dark:border-gray-700 cursor-pointer transition-colors ${!n.read ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
                                 >
@@ -308,6 +310,16 @@ const Navbar = () => {
                             >
                               <User size={16} className="mr-3 text-orange-500" />
                               Hồ sơ
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIsProfileDropdownOpen(false);
+                                setIsChangePasswordModalOpen(true);
+                              }}
+                              className="flex items-center w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-colors"
+                            >
+                              <Lock size={16} className="mr-3 text-orange-500" />
+                              Đổi mật khẩu
                             </button>
                             <button
                               onClick={() => {
@@ -484,6 +496,10 @@ const Navbar = () => {
       <ProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
+      />
+      <ChangePasswordModal
+        isOpen={isChangePasswordModalOpen}
+        onClose={() => setIsChangePasswordModalOpen(false)}
       />
     </div>
   );

@@ -17,6 +17,8 @@ import CreateClassPage from "./Admin/CreateClassPage.jsx";
 import ClassListPage from "./Admin/ClassListPage.jsx";
 import EditClassPage from "./Admin/EditClassPage.jsx";
 import SchedulePage from "./Admin/SchedulePage.jsx";
+import HskCategoryPage from "./Admin/HskCategoryPage.jsx";
+import RevenueDashboard from "./Admin/RevenueDashboard.jsx";
 import { useAuth } from "../components/Shared/AuthContext";
 
 const Admin = () => {
@@ -52,6 +54,8 @@ const Admin = () => {
           <Route path="classes" element={<ClassListPage />} />
           <Route path="edit-class/:id" element={<EditClassPage />} />
           <Route path="schedule-page" element={<SchedulePage />} />
+          <Route path="hsk-categories" element={<HskCategoryPage />} />
+          <Route path="revenue" element={<RevenueDashboard />} />
         </Routes>
       </main>
     </div>
