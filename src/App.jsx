@@ -94,7 +94,6 @@ const App = () => {
             <Route path="/teacher/assignments/:classId" element={<TeacherAssignments />} />
             <Route path="/teacher/assignments/:classId/submissions/:assignmentId" element={<AssignmentSubmissions />} />
 
-<<<<<<< HEAD
             {/* Student Routes */}
             <Route path="/student" element={<StudentDashboard />} />
             <Route path="/student/exams" element={<StudentExams />} />
@@ -104,7 +103,7 @@ const App = () => {
             <Route path="/student/classes" element={<StudentClasses />} />
             <Route path="/student/assignments/:classId" element={<StudentAssignments />} />
             <Route path="/student/assignments/:classId/:assignmentId" element={<StudentAssignmentDetail />} />
-=======
+
             {/* Student Routes with Layout */}
             <Route path="/student" element={<StudentDashboardLayout />}>
               <Route index element={<StudentDashboard />} />
@@ -115,7 +114,6 @@ const App = () => {
               <Route path="classes" element={<StudentClasses />} />
               <Route path="my-courses" element={<MyCoursesPage />} />
             </Route>
->>>>>>> 741d289559f814906bf88ff89d5cd461bd2cc1e5
 
             {/* Attendance Routes */}
             <Route path="/attendance" element={<AttendancePage />} />
