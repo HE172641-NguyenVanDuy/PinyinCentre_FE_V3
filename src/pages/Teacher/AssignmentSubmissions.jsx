@@ -46,6 +46,43 @@ const AssignmentSubmissions = () => {
     }
   };
 
+  const handleDownload = async (url) => {
+    if (!url) return;
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        const urlParts = url.split('/');
+        let fileName = urlParts[urlParts.length - 1] || 'bai-lam';
+        if (!fileName.includes('.')) {
+          const extension = blob.type.split('/')[1] || 'pdf';
+          fileName += `.${extension === 'octet-stream' ? 'pdf' : extension}`;
+        }
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+      } else {
+        throw new Error(`Server returned ${response.status}`);
+      }
+    } catch (error) {
+      console.warn("Fetch download failed, falling back to iframe method:", error);
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = url;
+      document.body.appendChild(iframe);
+      setTimeout(() => {
+        if (document.body.contains(iframe)) {
+          document.body.removeChild(iframe);
+        }
+      }, 5000);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -139,15 +176,13 @@ const AssignmentSubmissions = () => {
                   <div className="text-center">
                     <FileText size={64} className="text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-600 mb-4">File bài làm của học viên</p>
-                    <a
-                      href={selectedSubmission.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => handleDownload(selectedSubmission.fileUrl)}
                       className="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors inline-flex items-center gap-2"
                     >
                       <Eye size={18} />
                       Xem/Tải file bài làm
-                    </a>
+                    </button>
                   </div>
                 </div>
                 

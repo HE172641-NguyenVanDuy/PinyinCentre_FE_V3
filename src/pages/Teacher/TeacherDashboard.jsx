@@ -48,6 +48,7 @@ const TeacherDashboard = () => {
   const [loadingClasses, setLoadingClasses] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedClass, setExpandedClass] = useState(null);
+  const [selectedClassId, setSelectedClassId] = useState("all");
 
   useEffect(() => {
     if (role !== 2 && role !== "2") {
@@ -55,13 +56,12 @@ const TeacherDashboard = () => {
       return;
     }
     fetchTeacherStats();
+    fetchClasses();
   }, [role, navigate]);
 
   useEffect(() => {
     if (activeTab === "schedule") {
       fetchSchedules();
-    } else if (activeTab === "classes") {
-      fetchClasses();
     }
   }, [activeTab, selectedWeek]);
 
@@ -138,8 +138,15 @@ const TeacherDashboard = () => {
   const daysOfWeek = Array.from({ length: 7 }, (_, i) =>
     selectedWeek.add(i, "day")
   );
-  const getSchedulesForDay = (date) =>
-    schedules.filter((s) => dayjs(s.class_date).isSame(dayjs(date), "day"));
+  const getSchedulesForDay = (date) => {
+    let filtered = schedules.filter((s) => dayjs(s.class_date).isSame(dayjs(date), "day"));
+    
+    if (selectedClassId !== "all") {
+      filtered = filtered.filter(s => String(s.classroom_id) === String(selectedClassId));
+    }
+    
+    return filtered;
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -260,17 +267,33 @@ const TeacherDashboard = () => {
                   <h2 className="text-2xl font-bold text-slate-800">Lịch dạy chi tiết</h2>
                   <p className="text-slate-500">Tuần từ {selectedWeek.format("DD/MM/YYYY")} đến {selectedWeek.endOf("week").format("DD/MM/YYYY")}</p>
                 </div>
-                <div className="flex items-center space-x-3 mt-4 md:mt-0">
-                  <button onClick={() => setSelectedWeek(selectedWeek.subtract(1, "week"))} className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600">
-                    <ChevronLeft size={20} />
-                  </button>
-                  <button onClick={() => setSelectedWeek(dayjs().startOf("week"))} className="px-5 py-2.5 rounded-xl bg-slate-100 font-bold text-slate-700 hover:bg-slate-200">
-                    Hôm nay
-                  </button>
-                  <button onClick={() => setSelectedWeek(selectedWeek.add(1, "week"))} className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600">
-                    <ChevronRight size={20} />
-                  </button>
-                </div>
+                 <div className="flex flex-wrap items-center gap-4 mt-4 md:mt-0">
+                   {/* Bộ lọc lớp học */}
+                   <select
+                     value={selectedClassId}
+                     onChange={(e) => setSelectedClassId(e.target.value)}
+                     className="pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-slate-700 transition-all"
+                   >
+                     <option value="all">Tất cả lớp</option>
+                     {classes.map((cls) => (
+                       <option key={cls.id} value={cls.id}>
+                         {cls.name}
+                       </option>
+                     ))}
+                   </select>
+
+                   <div className="flex items-center space-x-2">
+                     <button onClick={() => setSelectedWeek(selectedWeek.subtract(1, "week"))} className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600">
+                       <ChevronLeft size={20} />
+                     </button>
+                     <button onClick={() => setSelectedWeek(dayjs().startOf("week"))} className="px-5 py-2.5 rounded-xl bg-slate-100 font-bold text-slate-700 hover:bg-slate-200">
+                       Hôm nay
+                     </button>
+                     <button onClick={() => setSelectedWeek(selectedWeek.add(1, "week"))} className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600">
+                       <ChevronRight size={20} />
+                     </button>
+                   </div>
+                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-7 gap-4">

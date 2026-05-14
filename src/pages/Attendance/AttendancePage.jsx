@@ -101,7 +101,7 @@ const AttendancePage = () => {
               <thead>
                 <tr>
                   <th className="text-left">Học sinh</th>
-                  <th className="text-left">Email</th>
+                  <th className="text-left">Tên đăng nhập</th>
                   <th className="text-center">Có mặt</th>
                 </tr>
               </thead>
@@ -109,9 +109,9 @@ const AttendancePage = () => {
                 {students.map((s) => (
                   <tr key={s.id}>
                     <td className="font-semibold text-gray-900">
-                      {s.name || s.full_name}
+                      {s.name || s.full_name || s.fullName}
                     </td>
-                    <td className="text-gray-500">{s.email}</td>
+                    <td className="text-gray-500">{s.username}</td>
                     <td className="text-center">
                       <label className="inline-flex items-center cursor-pointer">
                         <input

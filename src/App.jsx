@@ -113,6 +113,8 @@ const App = () => {
               <Route path="schedule" element={<StudentSchedule />} />
               <Route path="classes" element={<StudentClasses />} />
               <Route path="my-courses" element={<MyCoursesPage />} />
+              <Route path="assignments/:classId" element={<StudentAssignments />} />
+              <Route path="assignments/:classId/:assignmentId" element={<StudentAssignmentDetail />} />
             </Route>
 
             {/* Attendance Routes */}

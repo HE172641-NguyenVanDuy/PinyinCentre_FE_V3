@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { FaBookReader, FaChalkboardTeacher, FaCalendarAlt, FaChevronRight, FaSpinner } from "react-icons/fa";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { apiFetch } from "../../utils/api";
 import { toast } from "react-toastify";
 
@@ -10,6 +10,7 @@ const MyCoursesPage = () => {
   const [loading, setLoading] = useState(true);
   const [isVerifying, setIsVerifying] = useState(false);
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   
   // Flag để ngăn useEffect chạy 2 lần trong Strict Mode
   const processingRef = useRef(false);
@@ -17,7 +18,7 @@ const MyCoursesPage = () => {
   const fetchMyClasses = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await apiFetch("/student/my-classes");
+      const response = await apiFetch("/student/classes");
       const data = await response.json();
       if (data.status === 200) {
         setClasses(data.result);
@@ -182,7 +183,10 @@ const MyCoursesPage = () => {
               </div>
 
               <div className="px-8 pb-8">
-                <button className="w-full py-4 bg-gray-900 text-white font-bold rounded-2xl flex items-center justify-center hover:bg-blue-600 transition-all shadow-lg active:scale-95 group-hover:shadow-blue-200">
+                <button 
+                  onClick={() => navigate(`/student/classes?openClassId=${cls.id}`)}
+                  className="w-full py-4 bg-gray-900 text-white font-bold rounded-2xl flex items-center justify-center hover:bg-blue-600 transition-all shadow-lg active:scale-95 group-hover:shadow-blue-200"
+                >
                   Vào lớp học <FaChevronRight className="ml-2 text-xs" />
                 </button>
               </div>

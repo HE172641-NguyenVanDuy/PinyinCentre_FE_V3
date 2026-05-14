@@ -364,7 +364,7 @@ const TeacherClasses = () => {
                           <thead>
                             <tr className="bg-green-50">
                               <th className="p-2 border">Học sinh</th>
-                              <th className="p-2 border">Email</th>
+                              <th className="p-2 border">Tên đăng nhập</th>
                               <th className="p-2 border">Có mặt</th>
                               <th className="p-2 border">Vắng</th>
                               <th className="p-2 border">Tổng buổi</th>
@@ -378,13 +378,13 @@ const TeacherClasses = () => {
                                   ? Math.round((stat.absent * 100) / stat.total)
                                   : 0;
                               return (
-                                <tr key={stat.id}>
-                                  <td className="p-2 border font-semibold">
-                                    {stat.name}
-                                  </td>
-                                  <td className="p-2 border text-gray-500">
-                                    {stat.email}
-                                  </td>
+                                  <tr key={stat.id}>
+                                    <td className="p-2 border font-semibold">
+                                      {stat.name}
+                                    </td>
+                                    <td className="p-2 border text-gray-500">
+                                      {stat.username}
+                                    </td>
                                   <td className="p-2 border text-green-700 font-bold text-center">
                                     {stat.present}
                                   </td>

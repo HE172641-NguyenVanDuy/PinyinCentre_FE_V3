@@ -11,10 +11,12 @@ import {
   User,
   ChevronLeft,
   FileText,
+  Clock,
 } from "lucide-react";
+import { SiGooglemeet } from "react-icons/si";
 
 import { useAuth } from "../../components/Shared/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { apiFetch } from "../../utils/api";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
@@ -23,6 +25,7 @@ import FloatingChatIcons from "../../components/Shared/FloatingChatIcons";
 const StudentClasses = () => {
   const { role, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [classes, setClasses] = useState([]);
   const [filteredClasses, setFilteredClasses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,6 +36,9 @@ const StudentClasses = () => {
   const [loadingStudents, setLoadingStudents] = useState(false);
   const [showStudentsModal, setShowStudentsModal] = useState(false);
   const [attendanceSummary, setAttendanceSummary] = useState({});
+  const [activeModalTab, setActiveModalTab] = useState("info");
+  const [classSchedules, setClassSchedules] = useState([]);
+  const [loadingSchedules, setLoadingSchedules] = useState(false);
   const rowsPerPage = 6;
 
   useEffect(() => {
@@ -65,6 +71,22 @@ const StudentClasses = () => {
       });
     }
   }, [classes, role, user]);
+  
+  // Tự động mở modal nếu có openClassId từ URL (khi nhấn "Vào lớp học" từ trang MyCourses)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const openClassId = params.get("openClassId");
+    
+    if (openClassId && classes.length > 0) {
+      const cls = classes.find(c => String(c.id) === String(openClassId));
+      if (cls) {
+        handleShowDetails(cls);
+        // Xóa param sau khi đã mở để tránh mở lại khi reload
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    }
+  }, [location.search, classes]);
 
   const fetchClasses = async () => {
     setLoading(true);
@@ -105,10 +127,27 @@ const StudentClasses = () => {
     }
   };
 
-  const handleShowStudents = async (cls) => {
+  const fetchSchedules = async (classId) => {
+    setLoadingSchedules(true);
+    try {
+      const res = await apiFetch(`/student/classes/${classId}/schedules`);
+      const data = await res.json();
+      if (data.status === 200) {
+        setClassSchedules(data.result || []);
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy lịch học:", error);
+    } finally {
+      setLoadingSchedules(false);
+    }
+  };
+
+  const handleShowDetails = async (cls) => {
     setSelectedClass(cls);
     setShowStudentsModal(true);
-    await fetchStudents(cls.id);
+    setActiveModalTab("info");
+    fetchStudents(cls.id);
+    fetchSchedules(cls.id);
   };
 
   const handleSearch = (e) => {
@@ -268,25 +307,17 @@ const StudentClasses = () => {
                             Vắng: {attendanceSummary[cls.id]?.absent ?? "-"}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-blue-700 text-base">
-                            % vắng:
-                          </span>
-                          <span className="inline-block min-w-[40px] px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-bold text-base shadow">
-                            {attendanceSummary[cls.id] ? (attendanceSummary[cls.id].absent / cls.schedule_count * 100).toFixed(1) : "-"}%
-                          </span>
-                        </div>
                       </div>
                     </div>
 
                     {/* Actions */}
                     <div className="flex flex-col space-y-2">
-                      <button
-                        onClick={() => handleShowStudents(cls)}
+                       <button
+                        onClick={() => handleShowDetails(cls)}
                         className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-3 rounded-lg hover:shadow-lg transition-all flex items-center justify-center font-semibold"
                       >
-                        <Users className="h-4 w-4 mr-2" />
-                        Xem bạn học
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        Chi tiết lớp & Buổi học
                       </button>
                       <button
                         onClick={() => navigate(`/student/assignments/${cls.id}`)}
@@ -346,7 +377,7 @@ const StudentClasses = () => {
           </>
         )}
 
-        {/* Students Modal */}
+        {/* Class Details Modal */}
         <AnimatePresence>
           {showStudentsModal && selectedClass && (
             <motion.div
@@ -360,69 +391,185 @@ const StudentClasses = () => {
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden"
+                className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Modal Header */}
-                <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-xl font-bold">
-                        Bạn học - {selectedClass.name}
-                      </h3>
-                      <p className="text-blue-100">
-                        {selectedClass.course_name}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setShowStudentsModal(false)}
-                      className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
-                    >
-                      <X size={24} />
-                    </button>
-                  </div>
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 relative">
+                  <h3 className="text-2xl font-bold mb-1">{selectedClass.name}</h3>
+                  <p className="text-blue-100 flex items-center gap-2">
+                    <BookOpen size={16} /> {selectedClass.course_name}
+                  </p>
+                  <button
+                    onClick={() => setShowStudentsModal(false)}
+                    className="absolute top-6 right-6 text-white hover:bg-white/20 p-2 rounded-lg transition-all"
+                  >
+                    <X size={24} />
+                  </button>
+                </div>
+
+                {/* Modal Tabs */}
+                <div className="flex border-b">
+                  <button
+                    onClick={() => setActiveModalTab("info")}
+                    className={`flex-1 py-4 text-center font-bold transition-all flex items-center justify-center gap-2 ${
+                      activeModalTab === "info"
+                        ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                        : "text-gray-500 hover:bg-gray-50"
+                    }`}
+                  >
+                    <Calendar size={18} /> Thông tin & Lịch học
+                  </button>
+                  <button
+                    onClick={() => setActiveModalTab("students")}
+                    className={`flex-1 py-4 text-center font-bold transition-all flex items-center justify-center gap-2 ${
+                      activeModalTab === "students"
+                        ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                        : "text-gray-500 hover:bg-gray-50"
+                    }`}
+                  >
+                    <Users size={18} /> Bạn học ({students.length})
+                  </button>
                 </div>
 
                 {/* Modal Content */}
-                <div className="p-6 max-h-[60vh] overflow-y-auto">
-                  {loadingStudents ? (
-                    <div className="flex justify-center items-center h-32">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                    </div>
-                  ) : students.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {students.map((student, index) => (
-                        <motion.div
-                          key={student.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                          className="bg-gray-50 rounded-lg p-4 border border-gray-200"
-                        >
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                              <span className="text-white font-semibold text-sm">
-                                {student.fullName?.charAt(0) || "S"}
-                              </span>
-                            </div>
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-gray-900">
-                                {student.fullName}
-                              </h4>
-                              <p className="text-sm text-gray-600">
-                                {student.email}
-                              </p>
-                            </div>
+                <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(85vh - 200px)' }}>
+                  {activeModalTab === "info" ? (
+                    <div className="space-y-6">
+                      {/* Quick Info Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                          <div className="flex items-center gap-3 text-blue-600 mb-2">
+                            <User size={18} />
+                            <span className="text-xs font-bold uppercase tracking-wider">Giáo viên</span>
                           </div>
-                        </motion.div>
-                      ))}
+                          <p className="font-bold text-gray-900">{selectedClass.teacher_name || "Chưa phân công"}</p>
+                        </div>
+                        <div className="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                          <div className="flex items-center gap-3 text-purple-600 mb-2">
+                            <Calendar size={18} />
+                            <span className="text-xs font-bold uppercase tracking-wider">Ngày bắt đầu</span>
+                          </div>
+                          <p className="font-bold text-gray-900">
+                            {selectedClass.start_date ? dayjs(selectedClass.start_date).format("DD/MM/YYYY") : "N/A"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Sessions List */}
+                      <div>
+                        <h4 className="text-lg font-bold text-gray-900 mb-4 flex items-center justify-between">
+                          <span>Danh sách buổi học</span>
+                          <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full font-normal">
+                            {classSchedules.length} buổi
+                          </span>
+                        </h4>
+                        
+                        {loadingSchedules ? (
+                          <div className="flex flex-col items-center justify-center py-12">
+                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500 mb-4"></div>
+                            <p className="text-gray-500 animate-pulse">Đang tải lịch học...</p>
+                          </div>
+                        ) : classSchedules.length > 0 ? (
+                          <div className="space-y-3">
+                            {classSchedules.map((s, idx) => (
+                              <div key={s.id} className="flex items-center justify-between p-4 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-blue-300 transition-all group">
+                                <div className="flex items-center gap-4">
+                                  <div className="w-12 h-12 bg-slate-50 rounded-xl flex flex-col items-center justify-center border border-slate-100 group-hover:bg-blue-50 group-hover:border-blue-100 transition-colors">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase leading-none">{dayjs(s.classDate).format("MMM")}</span>
+                                    <span className="text-lg font-black text-slate-700 leading-none mt-1">{dayjs(s.classDate).format("DD")}</span>
+                                  </div>
+                                  <div>
+                                    <p className="font-black text-slate-800">Buổi {classSchedules.length - idx}</p>
+                                    <div className="flex items-center text-xs text-slate-500 font-bold mt-0.5">
+                                      <Clock className="h-3 w-3 mr-1" /> {s.startTime} - {s.endTime}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  {s.attendanceStatus === null || s.attendanceStatus === undefined ? (
+                                    <span className="px-3 py-1 bg-slate-100 text-slate-400 rounded-full text-[10px] font-black uppercase tracking-wider">Sắp tới</span>
+                                  ) : s.attendanceStatus ? (
+                                    <span className="px-3 py-1 bg-green-100 text-green-600 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Có mặt
+                                    </span>
+                                  ) : (
+                                    <span className="px-3 py-1 bg-red-100 text-red-500 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                                      <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span> Vắng
+                                    </span>
+                                  )}
+                                  
+                                  {s.link && (
+                                    <a 
+                                      href={s.link} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer" 
+                                      className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm border border-blue-100"
+                                      title="Vào lớp online"
+                                    >
+                                      <SiGooglemeet className="h-5 w-5" />
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                            <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                            <p className="text-gray-500 font-medium">Chưa có lịch học nào được tạo cho lớp này</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ) : (
-                    <div className="text-center text-gray-500 py-8">
-                      <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                      <p>Chưa có bạn học nào trong lớp này</p>
+                    <div className="space-y-4">
+                      {loadingStudents ? (
+                        <div className="flex flex-col items-center justify-center py-12">
+                          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500 mb-4"></div>
+                          <p className="text-gray-500 animate-pulse">Đang tải danh sách...</p>
+                        </div>
+                      ) : students.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {students.map((student, index) => (
+                            <motion.div
+                              key={student.id}
+                              initial={{ opacity: 0, scale: 0.95 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ delay: index * 0.05 }}
+                              className="flex items-center gap-4 p-4 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-blue-200 transition-all"
+                            >
+                              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-black text-lg shadow-md">
+                                {student.fullName?.charAt(0) || "S"}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-bold text-gray-900 truncate">{student.fullName}</p>
+                                <div className="flex items-center text-xs text-gray-500 gap-1 mt-0.5">
+                                  <Mail size={12} />
+                                  <span className="truncate">{student.email}</span>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                          <Users className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                          <p className="text-gray-500 font-medium">Chưa có bạn học nào trong lớp này</p>
+                        </div>
+                      )}
                     </div>
                   )}
+                </div>
+
+                {/* Modal Footer */}
+                <div className="p-4 bg-gray-50 border-t flex justify-end">
+                  <button
+                    onClick={() => setShowStudentsModal(false)}
+                    className="px-6 py-2 bg-white border border-gray-300 rounded-lg font-bold text-gray-700 hover:bg-gray-100 transition-all"
+                  >
+                    Đóng
+                  </button>
                 </div>
               </motion.div>
             </motion.div>

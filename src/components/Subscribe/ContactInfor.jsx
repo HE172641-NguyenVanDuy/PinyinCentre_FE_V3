@@ -9,7 +9,10 @@ const ContactInfo = () => {
       {/* Địa chỉ */}
       <div className="flex items-center gap-4 mb-4">
         <FaMapMarkerAlt className="text-green-800 text-2xl" />
-        <p className="text-gray-700 dark:text-gray-300">Địa chỉ: Đại học FPT, Khu Công nghệ cao Hòa Lạc</p>
+        <p className="text-gray-700 dark:text-gray-300">
+          Địa chỉ: Trường Đại Học Giao Thông Vận Tải, Số 3 phố Cầu Giấy, P. Láng
+          Thượng, Q. Đống Đa, Hà Nội.
+        </p>
       </div>
 
       {/* Điện thoại */}

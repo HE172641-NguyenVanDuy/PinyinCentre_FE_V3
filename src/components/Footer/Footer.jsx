@@ -103,7 +103,8 @@ const Footer = () => {
             <div className="flex gap-3 items-start">
               <FaLocationArrow className="mt-1" />
               <p className="text-sm">
-                Đại Học FPT, Khu Công Nghệ Cao, Hòa Lạc, Hà Nội
+                Trường Đại Học Giao Thông Vận Tải, Số 3 phố Cầu Giấy, P. Láng
+                Thượng, Q. Đống Đa, Hà Nội.
               </p>
             </div>
             <div className="flex gap-3 items-center">
