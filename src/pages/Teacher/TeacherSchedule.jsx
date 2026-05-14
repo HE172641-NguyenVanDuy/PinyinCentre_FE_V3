@@ -20,6 +20,8 @@ const TeacherSchedule = () => {
   const [loading, setLoading] = useState(false);
   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
   const [selectedScheduleId, setSelectedScheduleId] = useState(null);
+  const [classes, setClasses] = useState([]);
+  const [selectedClassId, setSelectedClassId] = useState("all");
 
   useEffect(() => {
     if (role !== "2" && role !== 2) {
@@ -27,8 +29,21 @@ const TeacherSchedule = () => {
       return;
     }
     fetchSchedules();
+    fetchClasses();
     // eslint-disable-next-line
   }, [role, navigate, selectedWeek]);
+
+  const fetchClasses = async () => {
+    try {
+      const res = await apiFetch("/teacher/classes");
+      const data = await res.json();
+      if (data.status === 200) {
+        setClasses(data.result || []);
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách lớp:", error);
+    }
+  };
 
   const fetchSchedules = async () => {
     setLoading(true);
@@ -75,9 +90,17 @@ const TeacherSchedule = () => {
   };
 
   const getSchedulesForDay = (date) => {
-    return schedules.filter((schedule) =>
+    let filtered = schedules.filter((schedule) =>
       dayjs(schedule.class_date).isSame(dayjs(date), "day")
     );
+    
+    if (selectedClassId !== "all") {
+      filtered = filtered.filter(s => 
+        String(s.classroom_id || s.classId) === String(selectedClassId)
+      );
+    }
+    
+    return filtered;
   };
 
   const daysOfWeek = Array.from({ length: 7 }, (_, i) =>
@@ -115,31 +138,52 @@ const TeacherSchedule = () => {
             Lịch dạy tuần {selectedWeek.format("DD/MM/YYYY")} -{" "}
             {selectedWeek.endOf("week").format("DD/MM/YYYY")}
           </h2>
-          <div className="flex items-center space-x-4">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={prevWeek}
-              className="p-3 rounded-lg bg-white shadow-lg hover:shadow-xl hover:bg-green-50 transition-all border border-green-200"
-            >
-              <ChevronLeft className="h-5 w-5 text-green-600" />
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setSelectedWeek(dayjs().startOf("week"))}
-              className="px-6 py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-lg hover:shadow-lg transition-all shadow-md font-semibold"
-            >
-              Hôm nay
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={nextWeek}
-              className="p-3 rounded-lg bg-white shadow-lg hover:shadow-xl hover:bg-green-50 transition-all border border-green-200"
-            >
-              <ChevronRight className="h-5 w-5 text-green-600" />
-            </motion.button>
+          <div className="flex flex-wrap items-center gap-4">
+            {/* Bộ lọc lớp học */}
+            <div className="relative min-w-[200px]">
+              <select
+                value={selectedClassId}
+                onChange={(e) => setSelectedClassId(e.target.value)}
+                className="w-full pl-4 pr-10 py-3 bg-white border border-green-200 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none appearance-none font-medium text-gray-700"
+              >
+                <option value="all">Tất cả các lớp</option>
+                {classes.map((cls) => (
+                  <option key={cls.id} value={cls.id}>
+                    {cls.name}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                <ChevronRight className="rotate-90 h-4 w-4" />
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={prevWeek}
+                className="p-3 rounded-lg bg-white shadow-lg hover:shadow-xl hover:bg-green-50 transition-all border border-green-200"
+              >
+                <ChevronLeft className="h-5 w-5 text-green-600" />
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setSelectedWeek(dayjs().startOf("week"))}
+                className="px-6 py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-lg hover:shadow-lg transition-all shadow-md font-semibold"
+              >
+                Hôm nay
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={nextWeek}
+                className="p-3 rounded-lg bg-white shadow-lg hover:shadow-xl hover:bg-green-50 transition-all border border-green-200"
+              >
+                <ChevronRight className="h-5 w-5 text-green-600" />
+              </motion.button>
+            </div>
           </div>
         </motion.div>
 

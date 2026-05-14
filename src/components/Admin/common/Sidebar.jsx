@@ -55,12 +55,6 @@ const SIDEBAR_ITEMS = [
     href: "/admin/classes",
   },
   {
-    name: "Thư Viện",
-    icon: BookOpen,
-    color: "#3B82F6",
-    href: "/admin/analytics",
-  },
-  {
     name: "HSK Category",
     icon: ClipboardList,
     color: "#F59E0B",

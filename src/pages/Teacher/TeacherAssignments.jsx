@@ -133,11 +133,11 @@ const TeacherAssignments = () => {
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="max-w-6xl mx-auto">
         <button
-          onClick={() => navigate("/teacher/classes")}
+          onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-gray-600 hover:text-blue-600 mb-6 transition-colors font-medium"
         >
           <ArrowLeft size={20} />
-          Quay lại danh sách lớp
+          Quay lại trang trước
         </button>
 
         <div className="flex justify-between items-center mb-8">

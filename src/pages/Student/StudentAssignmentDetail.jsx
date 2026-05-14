@@ -55,6 +55,53 @@ const StudentAssignmentDetail = () => {
     }
   };
 
+  const handleDownload = async (url) => {
+    if (!url) return;
+    
+    try {
+      const response = await fetch(url);
+      
+      if (response.ok) {
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        
+        // Trích xuất tên file từ URL
+        const urlParts = url.split('/');
+        let fileName = urlParts[urlParts.length - 1] || 'tai-lieu';
+        
+        // Nếu tên file không có phần mở rộng, thử lấy từ blob type hoặc mặc định là .pdf
+        if (!fileName.includes('.')) {
+          const extension = blob.type.split('/')[1] || 'pdf';
+          fileName += `.${extension === 'octet-stream' ? 'pdf' : extension}`;
+        }
+        
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+      } else {
+        throw new Error(`Server returned ${response.status}`);
+      }
+    } catch (error) {
+      console.warn("Fetch download failed, falling back to iframe method:", error);
+      
+      // Cách dự phòng: Iframe ẩn giúp kích hoạt trình tải xuống của trình duyệt
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = url;
+      document.body.appendChild(iframe);
+      
+      setTimeout(() => {
+        if (document.body.contains(iframe)) {
+          document.body.removeChild(iframe);
+        }
+      }, 5000);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -101,14 +148,12 @@ const StudentAssignmentDetail = () => {
                     <p className="text-xs text-gray-500">Xem yêu cầu từ giáo viên</p>
                   </div>
                 </div>
-                <a
-                  href={assignment.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => handleDownload(assignment.fileUrl)}
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
                 >
                   <Download size={16} /> Tải xuống
-                </a>
+                </button>
               </div>
             )}
           </div>
@@ -213,9 +258,12 @@ const StudentAssignmentDetail = () => {
                     <FileText size={16} className="text-red-500 shrink-0" />
                     <span className="text-sm text-gray-700 truncate">Bài làm của tôi</span>
                   </div>
-                  <a href={submission.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
+                  <button 
+                    onClick={() => handleDownload(submission.fileUrl)} 
+                    className="text-blue-600 hover:text-blue-800"
+                  >
                     <Download size={16} />
-                  </a>
+                  </button>
                 </div>
               </div>
             )}

@@ -94,17 +94,6 @@ const App = () => {
             <Route path="/teacher/assignments/:classId" element={<TeacherAssignments />} />
             <Route path="/teacher/assignments/:classId/submissions/:assignmentId" element={<AssignmentSubmissions />} />
 
-<<<<<<< HEAD
-            {/* Student Routes */}
-            <Route path="/student" element={<StudentDashboard />} />
-            <Route path="/student/exams" element={<StudentExams />} />
-            <Route path="/student/exams/:level" element={<HSKLevelExams />} />
-            <Route path="/student/exam/:examId" element={<ExamPage />} />
-            <Route path="/student/schedule" element={<StudentSchedule />} />
-            <Route path="/student/classes" element={<StudentClasses />} />
-            <Route path="/student/assignments/:classId" element={<StudentAssignments />} />
-            <Route path="/student/assignments/:classId/:assignmentId" element={<StudentAssignmentDetail />} />
-=======
             {/* Student Routes with Layout */}
             <Route path="/student" element={<StudentDashboardLayout />}>
               <Route index element={<StudentDashboard />} />
@@ -114,8 +103,9 @@ const App = () => {
               <Route path="schedule" element={<StudentSchedule />} />
               <Route path="classes" element={<StudentClasses />} />
               <Route path="my-courses" element={<MyCoursesPage />} />
+              <Route path="assignments/:classId" element={<StudentAssignments />} />
+              <Route path="assignments/:classId/:assignmentId" element={<StudentAssignmentDetail />} />
             </Route>
->>>>>>> 741d289559f814906bf88ff89d5cd461bd2cc1e5
 
             {/* Attendance Routes */}
             <Route path="/attendance" element={<AttendancePage />} />
